@@ -1,14 +1,18 @@
-import { prisma } from '../generated/prisma-client';
+import { prisma } from './../generated/prisma-client/index'
+import { GraphQLServer } from 'graphql-yoga'
 
-// A `main` function so that we can use async/await
-async function main() {
-  // Create a new user called `Alice`
-  const newUser = await prisma.createUser({ name: 'Alice' });
-  console.log(`Created new user: ${newUser.name} (ID: ${newUser.id})`);
-
-  // Read all users from the database and print them to the console
-  const allUsers = await prisma.users();
-  console.log(allUsers);
+const resolvers = {
+  Query: {
+    users(parent, args, context) {
+      return context.prisma.users()
+    }
+  }
 }
 
-main().catch(e => console.error(e));
+const server = new GraphQLServer({
+  typeDefs: './src/schema.graphql',
+  context: { prisma },
+  resolvers
+})
+
+server.start(() => console.log('Server is up on port 4000'))
