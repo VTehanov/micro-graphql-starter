@@ -1,5 +1,15 @@
 version: '3'
 services:
+  server:
+    image: graphql-server
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./server
+    # restart: always
+    ports:
+      - '4000:4000'
+    depends_on:
+      - prisma
   prisma:
     image: prismagraphql/prisma:1.34
     restart: always
@@ -15,13 +25,18 @@ services:
             port: 5432
             user: prisma
             password: prisma
+    depends_on:
+      - postgres
   postgres:
     image: postgres:10.3
     restart: always
+    ports:
+      - '5432:5432'
     environment:
       POSTGRES_USER: prisma
       POSTGRES_PASSWORD: prisma
     volumes:
       - postgres:/var/lib/postgresql/data
+
 volumes:
   postgres: ~
